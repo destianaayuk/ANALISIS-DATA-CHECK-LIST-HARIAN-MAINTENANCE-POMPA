@@ -1,0 +1,2 @@
+# ANALISIS-DATA-CHECK-LIST-HARIAN-MAINTENANCE-POMPA
+menganalisa data pompa kilang yang didapat pada kisaran bulan januari-juni 2019, diubah menjadi exel dan .csv agar bisa digunakan pada phyton, setelah data sudah difilter dan diubah dalam bentuk .csv maka langkah selanjut nya dimasukan dalam code awal python, lalu diambil sampel 5 teratas untuk dianalisa kembali, dan diakhirnya akan didapatkan data titik-titik nilai dari setiap pipa.
