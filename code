@@ -1,0 +1,246 @@
+#Numpy berfungsi memudahkan operasi komputasi tipe data numerik seperti penjumlahan, pengurangan, perkalian, pangkat, dan operasi lainnya yang bisa diterapkan pada vektor atau matriks.
+#Pandas biasa digunakan untuk membuat tabel, mengubah dimensi data, mengecek data, dan lain.
+
+import pandas as pd
+import numpy as np
+
+import matplotlib.pyplot as plt
+plt.style.use('ggplot')
+%matplotlib inline  
+
+from pandas.tools.plotting import scatter_matrix
+
+# pengimputan data.
+data = pd.read_csv('input1.csv')
+data
+
+# mengambil sampel data 5 teratas
+data.head(5)
+
+# features digunakan untuk memberikan informasi terhadap suatu keadaan, features disini digunakan untuk menyampaikan data pipa mana saja yang akan dianalisa.
+features = ['HP STEAM PRESSURE', 'HP STEAM TEMPERATURE', 'P - 1A',
+       'L.O M/PUMP DISC. PRES.', 'L.O FILTER DELTA PRESSURE',
+       'LO CONT. OIL PRESSURE', 'LO COOLER OUT TEMP.', 'LO RESERVOIR TEMP.',
+       'LO RESERVOIR LEVEL', 'P - 2A', 'SO M/PUMP DISC. PRES.',
+       'SO FILTER DELTA P', 'S/O DELTA P', 'SO COOLER OUT TEMP.',
+       'SO RESERVOIR', 'SO OH/TANK LEVEL', 'SO DRAINER-A LEVEL',
+       'SO DRAINER-B LEVEL', 'SO DEGAS. D/M', 'SO RESERVOIR.1', 'P - 111B',
+       'HS EXH. TEMPERATURE', 'LO HEADER PRESSURE', 'LO COMP. OUT TEMP.',
+       'LO COMP. OUT TEMP..1', 'SO HEADER PRESSURE', 'SO HEADER PRESSURE.1',
+       'SO COMP. OUT TEMP.', 'SO COMP. OUT TEMP..1', 'SO BALLANCE GAS',
+       'SO REFERENCE GAS', 'BUFF/THR. GAS DELTA P', 'VIB. COMP. SHAFT',
+       'VIB. COMP. SHAFT.1', 'VIB. COMP. SHAFT.2', 'VIB. COMP. SHAFT.3',
+       'DISC. COMP. SHAFT. AXL', 'DISC. COMP. SHAFT. AXL.1',
+       'VIB. TURBINE SHAFT', 'VIB. TURBINE SHAFT.1', 'VIB. TURBINE SHAFT.2',
+       'VIB. TURBINE SHAFT.3', 'DISC. TURB. SHAFT. AXIAL',
+       'DISC. TURB. SHAFT. AXIAL.1', 'TURBINE SPEED CONT.',
+       'TURBINE SPEED CONT..1', 'RYG SUCT. PRESSURE', 'RYG DISC. PRESSURE',
+       'RYG DELTA P', 'RYG SUCT. TEMPERATURE', 'RYG DISC. TEMPERATURE',
+       'RYG FLOW', 'LO SUPPLY PRESSURE', 'SURFACE CONDENSOR TEMPERATURE',
+       'Surface Condensor Pump Condition', 'Lube Oil Pump Condition',
+       'Seal Oil Pump Condition', 'Turbine Governor Comp. Condition',
+       'Comp. Condition']
+       
+# plot dan bandingkan standar deviasi fitur input
+data[features].std().plot(kind='bar', figsize=(8,6), title="Features Standard Deviation")
+
+# plot dan bandingkan deviasi standar log dari fitur input
+data[features].std().plot(kind='bar', figsize=(8,6), logy=True,title="Features Standard Deviation (log)")
+
+# mendapatkan daftar fitur varian teratas korelasi
+featurs_top_var = data[features].std().sort_values(ascending=False)
+featurs_top_var
+
+# daftar fitur yang memiliki korelasi tinggi dengan label regresi ttf
+fiks = [ 'LO RESERVOIR TEMP.','LO COMP. OUT TEMP.','VIB. TURBINE SHAFT.2','VIB. TURBINE SHAFT.3', 'LO HEADER PRESSURE','SO RESERVOIR','LO COMP. OUT TEMP..1','RYG DISC. PRESSURE','SO COMP. OUT TEMP..1','SO COMP. OUT TEMP.','TURBINE SPEED CONT..1','P - 1A','SO M/PUMP DISC. PRES.','HP STEAM TEMPERATURE','RYG FLOW','SO BALLANCE GAS','RYG DISC. PRESSURE','SO REFERENCE GAS']
+data[fiks].describe()
+
+# pemanggilan ulang
+correl_featurs_lbl = fiks
+correl_featurs_lbl 
+
+# plot sebuah peta untuk menampilkan korelasi antara fitur dan label regresi
+import seaborn as sns
+cm = np.corrcoef(data[correl_featurs_lbl].values.T)
+sns.set(font_scale=1.0)
+fig = plt.figure(figsize=(10, 8))
+hm = sns.heatmap(cm, cbar=True, annot=True, square=True, fmt='.2f', annot_kws={'size': 10}, yticklabels=correl_featurs_lbl, xticklabels=correl_featurs_lbl)
+plt.title('Features Correlation Heatmap')
+plt.show()
+
+# perbandingan data yang didapat pada korelasi sebelumnya
+
+1. sns.lmplot( 'LO RESERVOIR TEMP.','SO RESERVOIR', data=data)
+  # karena titik penyebaran nya masih di satu tempat tidak merata maka 
+  df222=data.loc[ (data["LO RESERVOIR TEMP."] > 50) & (data["SO RESERVOIR"] > 60) ]
+df333= data[~data.index.isin(df222.index)]
+#sns.lmplot( 'SO REFERENCE GAS','LO COMP. OUT TEMP.', data=df222,  fit_reg=False)
+sns.lmplot( 'LO RESERVOIR TEMP.','SO RESERVOIR', data=df222)
+
+2. sns.lmplot( 'LO RESERVOIR TEMP.','LO COMP. OUT TEMP..1', data=data)
+  # karena titik penyebaran nya masih di satu tempat tidak merata maka 
+  df222=data.loc[ (data["LO RESERVOIR TEMP."] > 35)]
+df333= data[~data.index.isin(df222.index)]
+#sns.lmplot( 'SO REFERENCE GAS','LO COMP. OUT TEMP.', data=df222,  fit_reg=False)
+sns.lmplot( 'LO RESERVOIR TEMP.','LO COMP. OUT TEMP..1', data=df222)
+
+3. sns.lmplot( 'LO RESERVOIR TEMP.','SO COMP. OUT TEMP..1', data=data)
+  # karena titik penyebaran nya masih di satu tempat tidak merata maka
+  df222=data.loc[ (data["LO RESERVOIR TEMP."] > 50 ) & (data['SO COMP. OUT TEMP..1'] > 48)]
+df333= data[~data.index.isin(df222.index)]
+#sns.lmplot( 'SO REFERENCE GAS','LO COMP. OUT TEMP.', data=df222,  fit_reg=False)
+sns.lmplot( 'LO RESERVOIR TEMP.','SO COMP. OUT TEMP..1', data=df222)
+
+4. sns.lmplot( 'LO RESERVOIR TEMP.','SO COMP. OUT TEMP.', data=data)
+  # karena titik penyebaran nya masih di satu tempat tidak merata maka
+  df222=data.loc[ (data["LO RESERVOIR TEMP."] > 40 ) & ( data['SO COMP. OUT TEMP.'] > 45 ) ]
+df333= data[~data.index.isin(df222.index)]
+#sns.lmplot( 'SO REFERENCE GAS','LO COMP. OUT TEMP.', data=df222,  fit_reg=False)
+sns.lmplot( 'LO RESERVOIR TEMP.','SO COMP. OUT TEMP.', data=df222)
+
+5. sns.lmplot( 'LO RESERVOIR TEMP.','SO REFERENCE GAS', data=data)
+  # karena titik penyebaran nya masih di satu tempat tidak merata maka
+  df222=data.loc[ (data["LO RESERVOIR TEMP."] > 40 ) & ( data['SO REFERENCE GAS'] > 152 ) ]
+df333= data[~data.index.isin(df222.index)]
+#sns.lmplot( 'SO REFERENCE GAS','LO COMP. OUT TEMP.', data=df222,  fit_reg=False)
+sns.lmplot( 'LO RESERVOIR TEMP.','SO REFERENCE GAS', data=df222)
+
+6. sns.lmplot( 'LO COMP. OUT TEMP.','SO RESERVOIR', data=data)
+  # karena titik penyebaran nya masih di satu tempat tidak merata maka
+  df222=data.loc[ (data["LO COMP. OUT TEMP."] > 30 ) & ( data['SO RESERVOIR'] > 50 ) ]
+df333= data[~data.index.isin(df222.index)]
+#sns.lmplot( 'SO REFERENCE GAS','LO COMP. OUT TEMP.', data=df222,  fit_reg=False)
+sns.lmplot(  'LO COMP. OUT TEMP.','SO RESERVOIR', data=df222)
+
+7. sns.lmplot( 'LO COMP. OUT TEMP.','SO COMP. OUT TEMP..1', data=data)
+  # karena titik penyebaran nya masih di satu tempat tidak merata maka
+  df222=data.loc[ (data["LO COMP. OUT TEMP."] > 30 ) & ( data['SO COMP. OUT TEMP..1'] > 50 ) ]
+df333= data[~data.index.isin(df222.index)]
+#sns.lmplot( 'SO REFERENCE GAS','LO COMP. OUT TEMP.', data=df222,  fit_reg=False)
+sns.lmplot(  'LO COMP. OUT TEMP.','SO COMP. OUT TEMP..1', data=df222)
+
+8. sns.lmplot( 'LO COMP. OUT TEMP.','SO COMP. OUT TEMP.', data=data)
+  # karena titik penyebaran nya masih di satu tempat tidak merata maka
+  df222=data.loc[ (data["LO COMP. OUT TEMP."] > 30 ) & ( data['SO COMP. OUT TEMP.'] >30 ) ]
+df333= data[~data.index.isin(df222.index)]
+#sns.lmplot( 'SO REFERENCE GAS','LO COMP. OUT TEMP.', data=df222,  fit_reg=False)
+sns.lmplot(  'LO COMP. OUT TEMP.','SO COMP. OUT TEMP.', data=df222)
+
+9. sns.lmplot( 'LO COMP. OUT TEMP.','SO REFERENCE GAS', data=data)
+  # karena titik penyebaran nya masih di satu tempat tidak merata maka
+  df222=data.loc[ (data["LO COMP. OUT TEMP."] > 30 )]
+df333= data[~data.index.isin(df222.index)]
+#sns.lmplot( 'SO REFERENCE GAS','LO COMP. OUT TEMP.', data=df222,  fit_reg=False)
+sns.lmplot(  'LO COMP. OUT TEMP.','SO REFERENCE GAS', data=df222)
+
+10. sns.lmplot('VIB. TURBINE SHAFT.2','VIB. TURBINE SHAFT.3', data=data)
+  # karena titik penyebaran nya masih di satu tempat tidak merata maka
+  df222=data.loc[ (data["VIB. TURBINE SHAFT.2"] > 17 ) & (data["VIB. TURBINE SHAFT.3"] > 10 )]
+df333= data[~data.index.isin(df222.index)]
+#sns.lmplot( 'SO REFERENCE GAS','LO COMP. OUT TEMP.', data=df222,  fit_reg=False)
+sns.lmplot( 'VIB. TURBINE SHAFT.2','VIB. TURBINE SHAFT.3', data=df222)
+
+11. sns.lmplot('LO HEADER PRESSURE','SO RESERVOIR', data=data)
+  # karena titik penyebaran nya masih di satu tempat tidak merata maka
+  df222=data.loc[ (data['LO HEADER PRESSURE'] > 1 ) & (data['SO RESERVOIR'] > 40)]
+df333= data[~data.index.isin(df222.index)]
+#sns.lmplot( 'SO REFERENCE GAS','LO COMP. OUT TEMP.', data=df222,  fit_reg=False)
+sns.lmplot('LO HEADER PRESSURE','SO RESERVOIR', data=df222)
+
+12. sns.lmplot('LO HEADER PRESSURE','SO COMP. OUT TEMP..1', data=data)
+ # karena titik penyebaran nya masih di satu tempat tidak merata maka
+ df222=data.loc[ (data['LO HEADER PRESSURE'] > 1 ) & (data['SO COMP. OUT TEMP..1'] > 50)]
+df333= data[~data.index.isin(df222.index)]
+#sns.lmplot( 'SO REFERENCE GAS','LO COMP. OUT TEMP.', data=df222,  fit_reg=False)
+sns.lmplot('LO HEADER PRESSURE','SO COMP. OUT TEMP..1', data=df222)
+
+13. sns.lmplot('LO HEADER PRESSURE','SO COMP. OUT TEMP.', data=data)
+ # karena titik penyebaran nya masih di satu tempat tidak merata maka
+ df222=data.loc[ (data['LO HEADER PRESSURE'] > 1 ) & (data['SO COMP. OUT TEMP.'] > 20)]
+df333= data[~data.index.isin(df222.index)]
+#sns.lmplot( 'SO REFERENCE GAS','LO COMP. OUT TEMP.', data=df222,  fit_reg=False)
+sns.lmplot('LO HEADER PRESSURE','SO COMP. OUT TEMP.', data=df222)
+
+14. sns.lmplot('LO HEADER PRESSURE','SO REFERENCE GAS', data=data)
+  # karena titik penyebaran nya masih di satu tempat tidak merata maka
+  df222=data.loc[ (data['LO HEADER PRESSURE'] > 1 ) & (data['SO REFERENCE GAS'] > 0)]
+df333= data[~data.index.isin(df222.index)]
+#sns.lmplot( 'SO REFERENCE GAS','LO COMP. OUT TEMP.', data=df222,  fit_reg=False)
+sns.lmplot('LO HEADER PRESSURE','SO REFERENCE GAS', data=df222)
+
+15. sns.lmplot('SO RESERVOIR','LO COMP. OUT TEMP..1', data=data)
+  # karena titik penyebaran nya masih di satu tempat tidak merata maka
+  df222=data.loc[ (data['SO RESERVOIR'] > 50 ) & (data['LO COMP. OUT TEMP..1'] > 40)]
+df333= data[~data.index.isin(df222.index)]
+#sns.lmplot( 'SO REFERENCE GAS','LO COMP. OUT TEMP.', data=df222,  fit_reg=False)
+sns.lmplot('SO RESERVOIR','LO COMP. OUT TEMP..1', data=df222)
+
+16. sns.lmplot('SO RESERVOIR','SO COMP. OUT TEMP..1', data=data)
+  # karena titik penyebaran nya masih di satu tempat tidak merata maka
+  df222=data.loc[ (data['SO RESERVOIR'] > 30 ) & (data['SO COMP. OUT TEMP..1'] > 50)]
+df333= data[~data.index.isin(df222.index)]
+#sns.lmplot( 'SO REFERENCE GAS','LO COMP. OUT TEMP.', data=df222,  fit_reg=False)
+sns.lmplot('SO RESERVOIR','SO COMP. OUT TEMP..1', data=df222)
+
+17. sns.lmplot('SO RESERVOIR','SO COMP. OUT TEMP.', data=data)
+  # karena titik penyebaran nya masih di satu tempat tidak merata maka
+  df222=data.loc[ (data['SO RESERVOIR'] > 30 ) & (data['SO COMP. OUT TEMP.'] > 50)]
+df333= data[~data.index.isin(df222.index)]
+#sns.lmplot( 'SO REFERENCE GAS','LO COMP. OUT TEMP.', data=df222,  fit_reg=False)
+sns.lmplot('SO RESERVOIR','SO COMP. OUT TEMP.', data=df222)
+
+18. sns.lmplot('SO RESERVOIR','SO REFERENCE GAS', data=data)
+  # karena titik penyebaran nya masih di satu tempat tidak merata maka
+  df222=data.loc[ (data['SO RESERVOIR'] > 0 ) & (data['SO REFERENCE GAS'] > 100)]
+df333= data[~data.index.isin(df222.index)]
+#sns.lmplot( 'SO REFERENCE GAS','LO COMP. OUT TEMP.', data=df222,  fit_reg=False)
+sns.lmplot('SO RESERVOIR','SO REFERENCE GAS', data=df222)
+
+19. sns.lmplot('LO COMP. OUT TEMP..1','SO COMP. OUT TEMP..1', data=data)
+  # karena titik penyebaran nya masih di satu tempat tidak merata maka
+  df222=data.loc[ (data['LO COMP. OUT TEMP..1'] > 0 ) & (data['SO COMP. OUT TEMP..1'] > 40)]
+df333= data[~data.index.isin(df222.index)]
+#sns.lmplot( 'SO REFERENCE GAS','LO COMP. OUT TEMP.', data=df222,  fit_reg=False)
+sns.lmplot('LO COMP. OUT TEMP..1','SO COMP. OUT TEMP..1', data=df222)
+
+20. sns.lmplot('LO COMP. OUT TEMP..1','SO COMP. OUT TEMP.', data=data)
+  # karena titik penyebaran nya masih di satu tempat tidak merata maka
+  df222=data.loc[ (data['LO COMP. OUT TEMP..1'] > 30 ) & (data['SO COMP. OUT TEMP.'] >0)]
+df333= data[~data.index.isin(df222.index)]
+#sns.lmplot( 'SO REFERENCE GAS','LO COMP. OUT TEMP.', data=df222,  fit_reg=False)
+sns.lmplot('LO COMP. OUT TEMP..1','SO COMP. OUT TEMP.', data=df222)
+
+21. sns.lmplot('LO COMP. OUT TEMP..1','SO REFERENCE GAS', data=data)
+  # karena titik penyebaran nya masih di satu tempat tidak merata maka
+  df222=data.loc[ (data['LO COMP. OUT TEMP..1'] > 0 ) & (data['SO REFERENCE GAS'] >100)]
+df333= data[~data.index.isin(df222.index)]
+#sns.lmplot( 'SO REFERENCE GAS','LO COMP. OUT TEMP.', data=df222,  fit_reg=False)
+sns.lmplot('LO COMP. OUT TEMP..1','SO REFERENCE GAS', data=df222)
+
+22. sns.lmplot('SO COMP. OUT TEMP..1','SO COMP. OUT TEMP.', data=data)
+  # karena titik penyebaran nya masih di satu tempat tidak merata maka
+  df222=data.loc[ (data['SO COMP. OUT TEMP..1'] > 50 ) & (data['SO COMP. OUT TEMP.'] >35)]
+df333= data[~data.index.isin(df222.index)]
+#sns.lmplot( 'SO REFERENCE GAS','LO COMP. OUT TEMP.', data=df222,  fit_reg=False)
+sns.lmplot('SO COMP. OUT TEMP..1','SO COMP. OUT TEMP.', data=df222)
+
+23. sns.lmplot('SO COMP. OUT TEMP..1','SO REFERENCE GAS', data=data)
+  # karena titik penyebaran nya masih di satu tempat tidak merata maka
+  df222=data.loc[ (data['SO COMP. OUT TEMP..1'] > 0 ) & (data['SO REFERENCE GAS'] > 100)]
+df333= data[~data.index.isin(df222.index)]
+#sns.lmplot( 'SO REFERENCE GAS','LO COMP. OUT TEMP.', data=df222,  fit_reg=False)
+sns.lmplot('SO COMP. OUT TEMP..1','SO REFERENCE GAS', data=df222)
+
+24. sns.lmplot('SO COMP. OUT TEMP.','SO REFERENCE GAS', data=data)
+  # karena titik penyebaran nya masih di satu tempat tidak merata maka
+  df222=data.loc[ (data['SO COMP. OUT TEMP.'] > 0 ) & (data['SO REFERENCE GAS'] > 100)]
+df333= data[~data.index.isin(df222.index)]
+#sns.lmplot( 'SO REFERENCE GAS','LO COMP. OUT TEMP.', data=df222,  fit_reg=False)
+sns.lmplot('SO COMP. OUT TEMP.','SO REFERENCE GAS', data=df222)
+
+25. sns.lmplot('SO BALLANCE GAS','SO REFERENCE GAS', data=data)
+  # karena titik penyebaran nya masih di satu tempat tidak merata maka
+  df222=data.loc[ (data['SO BALLANCE GAS'] > 0 ) & (data['SO REFERENCE GAS'] > 100)]
+df333= data[~data.index.isin(df222.index)]
+#sns.lmplot( 'SO REFERENCE GAS','LO COMP. OUT TEMP.', data=df222,  fit_reg=False)
+sns.lmplot('SO BALLANCE GAS','SO REFERENCE GAS', data=df222)
